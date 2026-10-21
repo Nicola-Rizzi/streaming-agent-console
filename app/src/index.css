@@ -1,1 +1,10 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Colour means state, never decoration: one token per outcome, one muted tone for the agent's process. */
+@theme {
+  --color-ok: oklch(0.55 0.13 155);
+  --color-warn: oklch(0.6 0.13 65);
+  --color-bad: oklch(0.55 0.19 25);
+  --color-process: oklch(0.52 0.02 260);
+}

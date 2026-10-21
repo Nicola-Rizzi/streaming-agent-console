@@ -1,22 +1,30 @@
-import { useState } from "react";
+import { memo, useState, type KeyboardEvent } from "react";
 
-type Props = {
+import { strings } from "../strings";
+
+type ComposerProps = {
   disabled: boolean;
   isStreaming: boolean;
+  lockedReason?: string;
   onSend: (text: string) => void;
   onStop: () => void;
 };
 
-export function Composer({ disabled, isStreaming, onSend, onStop }: Props) {
+export const Composer = memo(function Composer({ disabled, isStreaming, lockedReason, onSend, onStop }: ComposerProps) {
   const [text, setText] = useState("");
+  const canSend = !disabled && !isStreaming && text.trim() !== "";
 
   const submit = () => {
-    const trimmed = text.trim();
-    if (!trimmed || disabled || isStreaming) {
-      return;
-    }
-    onSend(trimmed);
+    if (!canSend) return;
+    onSend(text.trim());
     setText("");
+  };
+
+  // Enter sends, Shift+Enter adds a line. Ignored while an IME is composing.
+  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    submit();
   };
 
   return (
@@ -25,36 +33,22 @@ export function Composer({ disabled, isStreaming, onSend, onStop }: Props) {
         <textarea
           className="max-h-40 min-h-10 flex-1 resize-none rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-500"
           disabled={disabled}
-          onChange={(changeEvent) => setText(changeEvent.target.value)}
-          onKeyDown={(keyEvent) => {
-            if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
-              keyEvent.preventDefault();
-              submit();
-            }
-          }}
-          placeholder={disabled ? "Select a thread first" : "Ask the assistant…"}
+          onChange={(event) => setText(event.target.value)}
+          onKeyDown={onKeyDown}
+          placeholder={lockedReason ?? (disabled ? strings.composer.noThread : strings.composer.placeholder)}
           rows={1}
           value={text}
         />
-        {isStreaming ? (
-          <button
-            className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700"
-            onClick={onStop}
-            type="button"
-          >
-            Stop
-          </button>
-        ) : (
-          <button
-            className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
-            disabled={disabled || !text.trim()}
-            onClick={submit}
-            type="button"
-          >
-            Send
-          </button>
-        )}
+        {/* One button: Stop while a turn runs, Send otherwise. */}
+        <button
+          className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white enabled:hover:bg-neutral-700 disabled:opacity-40"
+          disabled={!isStreaming && !canSend}
+          onClick={isStreaming ? onStop : submit}
+          type="button"
+        >
+          {isStreaming ? strings.composer.stop : strings.composer.send}
+        </button>
       </div>
     </div>
   );
-}
+});
