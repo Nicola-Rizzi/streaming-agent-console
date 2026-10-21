@@ -1,0 +1,115 @@
+[
+  {
+    "id": "data-overview",
+    "title": "Marketing data overview",
+    "protocol": 2,
+    "updated_at": "2026-08-06T09:30:00Z",
+    "fixture": "data-overview.sse"
+  },
+  {
+    "id": "competitor-teardown",
+    "title": "Competitor ad teardown",
+    "protocol": 2,
+    "updated_at": "2026-08-05T18:40:00Z",
+    "fixture": "competitor-teardown.sse"
+  },
+  {
+    "id": "forward-compat",
+    "title": "Traffic anomalies",
+    "protocol": 2,
+    "updated_at": "2026-08-05T16:05:40Z",
+    "fixture": "forward-compat.sse"
+  },
+  {
+    "id": "markdown-torture",
+    "title": "UTM audit script",
+    "protocol": 2,
+    "updated_at": "2026-08-05T14:30:20Z",
+    "fixture": "markdown-torture.sse"
+  },
+  {
+    "id": "website-audit",
+    "title": "Website improvement audit",
+    "protocol": 2,
+    "updated_at": "2026-08-05T12:10:00Z",
+    "fixture": "website-audit.sse"
+  },
+  {
+    "id": "error-recovery",
+    "title": "CPC benchmark check",
+    "protocol": 2,
+    "updated_at": "2026-08-05T11:15:45Z",
+    "fixture": "error-recovery.sse"
+  },
+  {
+    "id": "interrupted-run",
+    "title": "Berlin webinar attribution",
+    "protocol": 2,
+    "updated_at": "2026-08-05T09:40:15Z",
+    "fixture": "interrupted-run.sse"
+  },
+  {
+    "id": "homepage-gap",
+    "title": "Homepage language gap",
+    "protocol": 2,
+    "updated_at": "2026-08-04T17:20:00Z",
+    "fixture": "homepage-gap.sse"
+  },
+  {
+    "id": "slow-thinking",
+    "title": "Newsletter open-rate drop",
+    "protocol": 2,
+    "updated_at": "2026-08-04T15:02:30Z",
+    "fixture": "slow-thinking.sse"
+  },
+  {
+    "id": "campaign-review",
+    "title": "Q3 launch review",
+    "protocol": 2,
+    "updated_at": "2026-08-03T10:22:10Z",
+    "fixture": "campaign-review.sse"
+  },
+  {
+    "id": "seo-analysis",
+    "title": "Deep SEO analysis",
+    "protocol": 2,
+    "updated_at": "2026-08-02T11:05:00Z",
+    "fixture": "seo-analysis.sse"
+  },
+  {
+    "id": "history-heavy",
+    "title": "Always-on optimization log",
+    "protocol": 2,
+    "updated_at": "2026-08-01T08:00:00Z",
+    "fixture": "history-heavy.sse"
+  },
+  {
+    "id": "welcome",
+    "title": "Getting started",
+    "protocol": 2,
+    "updated_at": "2026-08-06T10:00:00Z",
+    "fixture": "welcome.sse"
+  },
+  {
+    "id": "legacy-pipeline",
+    "title": "HubSpot connection",
+    "protocol": 1,
+    "updated_at": "2026-03-11T10:06:00Z",
+    "fixture": "legacy-pipeline.sse"
+  },
+  {
+    "id": "legacy-roas",
+    "title": "ROAS reality check",
+    "protocol": 1,
+    "updated_at": "2026-02-20T09:35:00Z",
+    "fixture": "legacy-roas.sse",
+    "turn_protocol": 2
+  },
+  {
+    "id": "silent-stall",
+    "title": "Campaigns not to repeat",
+    "protocol": 2,
+    "updated_at": "2026-08-05T13:05:00Z",
+    "fixture": "silent-stall.sse"
+  }
+]

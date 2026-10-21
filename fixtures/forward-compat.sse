@@ -1,0 +1,23 @@
+: The wire evolves faster than the docs. This turn carries a message type and
+: an artifact type the contract doesn't describe, plus an artifact reference
+: that never resolves. Degrade locally; never corrupt the transcript.
+
+event: final
+data: {"type": "user", "id": "u1", "content": "Anything unusual in yesterday's traffic?", "timestamp": "2026-08-05T16:05:00Z"}
+
+: turn
+
+event: final
+data: {"type": "action", "id": "act-scan", "title": "Scan traffic anomalies", "icon": "radar", "input": {"day": "2026-08-04"}, "results": [{"type": "text", "title": "1 anomaly found"}], "has_succeeded": true, "kind": "tool", "artifacts": [{"id": "art-geo", "type": "geo_heatmap", "projection": "mercator", "cells": [[52.52, 13.4, 812], [38.72, -9.14, 344]]}]}
+
+event: final
+data: {"type": "assistant", "id": "a1", "content": "One anomaly: a burst of 812 sessions from Berlin between 02:00 and 03:00, all landing on the pricing page with a referrer of `news.ycombinator.com`. Looks like the launch post resurfaced."}
+
+event: final
+data: {"type": "signal_check", "id": "x1", "level": "info", "note": "traffic spike verified against server logs"}
+
+event: final
+data: {"type": "artifact", "artifact_id": "art-sessions-detail"}
+
+event: final
+data: {"type": "assistant", "id": "a2", "content": "Nothing else stands out — bounce rate on the spike traffic was normal, so it's genuine interest rather than a bot wave."}

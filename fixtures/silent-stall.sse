@@ -1,0 +1,35 @@
+: The connection dies without saying so. Mid-turn the frames stop and the
+: keep-alives stop with them, but the socket stays open — so there is no error,
+: no close, and nothing to catch. Only the missing keep-alives separate this
+: from the long pause in slow-thinking, which keeps sending them throughout.
+:
+: The stall outlasts any sane threshold. Playback continues server-side, so a
+: client that notices and reconnects gets the rest of the answer.
+
+event: final
+data: {"type": "user", "id": "u1", "content": "Which of last quarter's campaigns should we not repeat?", "timestamp": "2026-08-05T13:05:00Z"}
+
+: turn
+
+event: final
+data: {"type": "thinking", "id": "t1", "content": "Three campaigns underperformed. Before I name them I want spend against pipeline rather than spend against clicks, or I will flag the cheap ones instead of the wasteful ones."}
+
+event: final
+data: {"type": "action", "id": "act-spend", "title": "Query campaign spend against pipeline", "icon": "database", "input": {"range": "2026-04-01..2026-06-30", "group_by": ["campaign"]}, "results": [{"icon": "", "title": "Result"}], "has_succeeded": true, "kind": "tool"}
+
+event: streaming
+data: {"type": "assistant", "id": "a1", "content": "Three stand out, and the reason differs in each case.\n\n"}
+
+event: streaming
+data: {"type": "assistant", "id": "a1", "content": "**Founder Stories (LinkedIn)** — €11.4k for four opportunities. The creative worked; the "}
+
+: stall 45000
+
+event: streaming
+data: {"type": "assistant", "id": "a1", "content": "targeting did not, and it spent most of its budget on people who already knew us.\n\n"}
+
+event: final
+data: {"type": "assistant", "id": "a1", "content": "Three stand out, and the reason differs in each case.\n\n**Founder Stories (LinkedIn)** — €11.4k for four opportunities. The creative worked; the targeting did not, and it spent most of its budget on people who already knew us.\n\n**Retargeting — All Visitors** — €6.2k, almost all of it against a segment that had already converted. Narrow it or drop it.\n\n**Webinar Promotion (Q2)** — €4.8k and the strongest engagement of the three, but every opportunity it produced was already in an active sequence. It moved deals it did not create.\n\nThe first two are waste. The third is attribution — I would keep running it and stop crediting it."}
+
+event: complete
+data: {}

@@ -1,0 +1,45 @@
+: Manual-mode fixture: pre-chunked streaming frames that split markdown in the
+: worst places — inside a code fence, mid-table-row — and a final that differs
+: from what the deltas accumulated to. The final wins.
+: mode manual
+
+event: final
+data: {"type": "user", "id": "u1", "content": "Give me the UTM audit script", "timestamp": "2026-08-05T14:30:00Z"}
+
+: turn
+
+event: streaming
+data: {"type": "assistant", "id": "a1", "content": "Here's the audit script. Findings first:\n\n| Campaign | Issue "}
+
+: delay 900
+
+event: streaming
+data: {"type": "assistant", "id": "a1", "content": "|\n|---|--"}
+
+: delay 1100
+
+event: streaming
+data: {"type": "assistant", "id": "a1", "content": "-|\n| q3_launch | mixed-case source "}
+
+: delay 800
+
+event: streaming
+data: {"type": "assistant", "id": "a1", "content": "|\n| webinar_de | missing medium |\n\nAnd the script:\n\n```sql\nSELECT campaign, COUNT(*) AS bad_rows\nFROM utm_events\nWHERE source <> LOWER(source"}
+
+: delay 1400
+
+event: streaming
+data: {"type": "assistant", "id": "a1", "content": ")\n   OR medium IS NULL\nGROUP BY campaign\nORDER BY bad_rows DESC;\n```\n\nRun it weekly"}
+
+: delay 700
+
+event: streaming
+data: {"type": "assistant", "id": "a1", "content": " and the drift stays manageable."}
+
+: delay 600
+
+event: final
+data: {"type": "assistant", "id": "a1", "content": "Here's the audit, tightened up:\n\n| Campaign | Issue | Rows |\n|---|---|---|\n| q3_launch | mixed-case source | 312 |\n| webinar_de | missing medium | 78 |\n\n```sql\nSELECT campaign, COUNT(*) AS bad_rows\nFROM utm_events\nWHERE source <> LOWER(source)\n   OR medium IS NULL\nGROUP BY campaign\nORDER BY bad_rows DESC;\n```\n\nNote the row counts — I added them after a second pass. Run this weekly and the drift stays manageable."}
+
+event: complete
+data: {}

@@ -1,0 +1,30 @@
+: Two turns, two kinds of error. The first arrives mid-turn and the turn
+: carries on — errors are content, not necessarily the end. The second ends
+: the turn: no complete, no further content, an action left running. That turn
+: failed, and it has to read as failed rather than as still going.
+
+event: final
+data: {"type": "user", "id": "u1", "content": "Compare our CPCs against the industry benchmark", "timestamp": "2026-08-05T11:15:30Z"}
+
+: turn
+
+event: final
+data: {"type": "action", "id": "act-bench", "title": "Fetch industry benchmarks", "icon": "globe", "input": {"vertical": "b2b_saas", "region": "EU"}, "results": [], "has_succeeded": false, "kind": "tool"}
+
+event: error
+data: {"title": "Benchmark provider unavailable", "status": 502, "detail": "The upstream benchmark API timed out after 3 retries."}
+
+event: final
+data: {"type": "assistant", "id": "a1", "content": "The external benchmark service is down right now, so I can't give you the industry comparison. What I *can* tell you from your own history: your blended CPC of **€1.84** is 12% below your trailing six-month average, and the LinkedIn CPC trend has been improving since the segment merge. I'll flag the benchmark comparison to retry once the provider is back."}
+
+: turn
+
+event: final
+data: {"type": "thinking", "id": "t2", "content": "They want the same comparison from our own historical data instead. That means a full recompute over the benchmark window."}
+
+event: final
+data: {"type": "action", "id": "act-recompute", "title": "Recompute CPC baselines", "icon": "gauge", "input": {"window": "365d"}, "results": []}
+
+event: error
+data: {"title": "Baseline job crashed", "status": 500, "detail": "The recompute worker terminated. Nothing was written."}
+

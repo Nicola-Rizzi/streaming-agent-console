@@ -1,0 +1,16 @@
+: A legacy (protocol v1) thread — plain text and one tool call. Served in the
+: v1 wire format; see PROTOCOL_V1.md.
+
+event: final
+data: {"type": "user", "id": "u1", "content": "How do I connect our HubSpot account?", "timestamp": "2026-03-11T10:05:00Z"}
+
+event: final
+data: {"type": "assistant", "id": "a1", "content": "Head to Settings > Connections, pick HubSpot, and authorize with an account that has super-admin rights. Sync starts within a few minutes; historical backfill takes up to an hour."}
+
+: turn
+
+event: final
+data: {"type": "action", "id": "act-check", "title": "Check connection status", "icon": "plug", "input": {"connector": "hubspot"}, "results": [{"type": "text", "title": "Connected, last sync 4 min ago"}], "has_succeeded": true, "kind": "tool"}
+
+event: final
+data: {"type": "assistant", "id": "a2", "content": "You're connected — the last sync ran four minutes ago and pulled 1,208 contacts. Deal-stage history is still backfilling."}

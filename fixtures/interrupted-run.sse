@@ -1,0 +1,25 @@
+: The socket goes away mid-turn with a tool call still running — no complete,
+: no error, just silence. The action is interrupted, not failed. Playback
+: continues server-side, so a resume shows how the story ended.
+
+event: final
+data: {"type": "user", "id": "u1", "content": "Pull the full attribution report for the Berlin webinar funnel", "timestamp": "2026-08-05T09:40:00Z"}
+
+: turn
+
+event: final
+data: {"type": "thinking", "id": "t1", "content": "This is a heavy query — cross-channel attribution over six months of touchpoints. Kicking it off."}
+
+event: final
+data: {"type": "action", "id": "act-attr", "title": "Build attribution report", "icon": "chart", "input": {"funnel": "berlin_webinar", "window": "180d"}, "kind": "tool"}
+
+: kill
+
+event: final
+data: {"type": "action", "id": "act-attr", "title": "Build attribution report", "icon": "chart", "input": {"funnel": "berlin_webinar", "window": "180d"}, "results": [{"type": "text", "title": "Report ready — 6 channels, 14k touchpoints"}], "has_succeeded": true, "kind": "tool"}
+
+event: final
+data: {"type": "assistant", "id": "a1", "content": "The Berlin webinar funnel is driven mostly by **LinkedIn organic** (42% of first touches) with paid search closing (61% of last touches). Direct traffic is overstated — 18% of it is untagged newsletter clicks."}
+
+event: complete
+data: {}

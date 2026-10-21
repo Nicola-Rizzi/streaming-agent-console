@@ -1,0 +1,16 @@
+: A gentle first thread — one prior exchange in history, one queued turn with
+: markdown-heavy output. Good for getting the rendering loop going.
+
+event: final
+data: {"type": "user", "id": "u1", "content": "What can you help me with?", "timestamp": "2026-07-28T09:14:02Z"}
+
+event: final
+data: {"type": "assistant", "id": "a1", "content": "I can analyze your campaign performance, dig into channel and audience data, draft reports, and keep an eye on budget pacing. Ask me anything about your marketing."}
+
+: turn
+
+event: final
+data: {"type": "thinking", "id": "t2", "content": "The user wants a quick overview of what channel reporting looks like. I should show a small example with a table and a code sample for the UTM convention."}
+
+event: final
+data: {"type": "assistant", "id": "a2", "content": "Here's how I break down **channel reporting**.\n\n### What I look at\n\n| Channel | What matters | Common trap |\n|---|---|---|\n| Paid search | Impression share, CPC drift | Brand terms inflating ROAS |\n| Paid social | Frequency, creative fatigue | Attribution windows |\n| Email | List health, deliverability | Open-rate vanity |\n\nWhen tagging links, keep UTMs boring and consistent:\n\n```text\nutm_source=linkedin\nutm_medium=paid_social\nutm_campaign=q3_launch_pt\n```\n\nWant me to run this against one of your live campaigns?"}

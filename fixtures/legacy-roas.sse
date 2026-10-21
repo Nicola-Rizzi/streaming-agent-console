@@ -1,0 +1,33 @@
+: A legacy (protocol v1) thread whose original conversation was rich —
+: reasoning, a sub-agent, chart artifacts. v1 cannot express most of that:
+: thinking disappears, the sub-agent's work arrives flattened as plain tool
+: calls, artifacts ride inline. How the console degrades here is the point.
+
+event: final
+data: {"type": "user", "id": "u1", "content": "Is our ROAS actually improving or is it attribution noise?", "timestamp": "2026-02-20T09:30:00Z"}
+
+event: final
+data: {"type": "thinking", "id": "t1", "content": "Need to separate genuine efficiency gains from the attribution-window change made in January. Compare cohort-based ROAS against reported ROAS."}
+
+event: final
+data: {"type": "action", "id": "act-cohort", "title": "Compute cohort ROAS", "icon": "database", "input": {"cohorts": "2025-Q4..2026-Q1"}, "results": [{"type": "text", "title": "Cohort ROAS: 2.4 -> 2.9"}], "has_succeeded": true, "kind": "tool", "artifacts": [{"id": "art-roas", "type": "chart", "data": [{"type": "scatter", "mode": "lines", "name": "Cohort ROAS", "x": ["2025-10", "2025-11", "2025-12", "2026-01", "2026-02"], "y": [2.4, 2.5, 2.6, 2.8, 2.9]}], "layout": {"title": "Cohort-based ROAS"}}]}
+
+event: final|attr-1
+data: {"type": "thinking", "id": "s1-t1", "content": "Validating whether the January attribution-window change inflates the reported numbers. Re-running February under the old 7-day window."}
+
+event: final|attr-1
+data: {"type": "action", "id": "s1-act", "title": "Replay under old window", "icon": "history", "input": {"window": "7d"}, "results": [{"type": "text", "title": "Reported 3.4 -> 3.0 under old window"}], "has_succeeded": true, "kind": "tool"}
+
+event: final
+data: {"type": "action", "id": "act-attr-agent", "title": "Attribution auditor", "icon": "agent", "input": {"question": "Does the window change inflate reported ROAS?"}, "results": [{"type": "text", "title": "~0.4 of the reported gain is window inflation"}], "has_succeeded": true, "kind": "agent", "scope_id": "attr-1"}
+
+event: final
+data: {"type": "assistant", "id": "a1", "content": "Both, but mostly real: cohort ROAS moved from 2.4 to 2.9 over five months, which no attribution change can fake. Of the *reported* jump to 3.4, about 0.4 is inflation from January's attribution-window change. Real efficiency is up roughly 20%."}
+
+: turn
+
+event: final
+data: {"type": "action", "id": "act-refresh", "title": "Refresh cohort data", "icon": "database", "input": {"cohorts": "2026-02"}, "results": [{"type": "text", "title": "February cohort updated"}], "has_succeeded": true, "kind": "tool"}
+
+event: final
+data: {"type": "assistant", "id": "a2", "content": "February's cohort has matured a bit more since we last looked: cohort ROAS is holding at 2.9, and the paid-search share of conversions is inching up. The trend is real."}
