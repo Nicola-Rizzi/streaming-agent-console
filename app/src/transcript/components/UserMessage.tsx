@@ -13,7 +13,7 @@ export const UserMessage = memo(function UserMessage({ user }: { user: NonNullab
               className="rounded-md border border-neutral-200 bg-white px-2 py-0.5 text-xs"
               key={file.id ?? file.file_name}
             >
-              📎 {file.file_name}
+              <span aria-hidden="true">📎</span> {file.file_name}
             </li>
           ))}
         </ul>

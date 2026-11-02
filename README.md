@@ -16,6 +16,7 @@ The app runs against a mock backend (`server/`) that replays recorded conversati
 - **Asks you questions.** When the assistant needs input, it shows a small form (options, multi-select, free text) and waits.
 - **Handles failure honestly.** Stop, errors, dropped connections and silent stalls each have their own state, and a dropped turn can be resumed.
 - **Degrades gracefully.** Unknown content shows a short note in place instead of breaking the page.
+- **Works with a keyboard and a screen reader.** Turn endings and questions are announced, focus moves to a question when one arrives, and the main screens pass an automated WCAG 2.1 AA check.
 
 ## Quick start
 
@@ -37,8 +38,8 @@ Other commands:
 
 | Command | What it does |
 |---|---|
-| `npm test` | Unit tests (58, about a second) |
-| `npm run test:e2e` | Browser tests (9, about 90 seconds; downloads Chromium the first time) |
+| `npm test` | Unit tests (60, about a second) |
+| `npm run test:e2e` | Browser tests (10, about 90 seconds; downloads Chromium the first time) |
 | `npm run demo:gif` | Re-records `docs/demo.gif` from the real app |
 
 ## How it works
@@ -84,7 +85,7 @@ A few details that matter:
 ## Tests
 
 - **Unit tests** cover each rule on its own (decoding, streaming text, sub-agents, every way a turn ends), the connection logic with fake timers, and the main components.
-- **Browser tests** run the real app against the mock backend: a full turn with a question, Stop, a dropped connection, errors, a silent stall, markdown, unknown content, an old-format thread and scrolling. They fail on any unexpected console error.
+- **Browser tests** run the real app against the mock backend: a full turn with a question, Stop, a dropped connection, errors, a silent stall, markdown, unknown content, an old-format thread and scrolling. They fail on any unexpected console error, and one runs [axe](https://github.com/dequelabs/axe-core) against WCAG 2.1 AA with every section expanded.
 
 ## Limitations and next steps
 

@@ -182,6 +182,40 @@ describe("UC-31 to UC-34 questions from the assistant", () => {
   });
 });
 
+describe("screen readers", () => {
+  const view = (snapshot: Snapshot) => (
+    <Transcript onAnswer={vi.fn()} onResume={vi.fn()} snapshot={snapshot} view={selectTranscript(snapshot.state)} />
+  );
+  const sent: TranscriptAction = { type: "sent", text: "How did Q3 do?" };
+  const answer: TranscriptAction = {
+    type: "frames",
+    frames: [f("final", { type: "assistant", id: "a1", content: "Well." })],
+  };
+  const liveRegion = () => document.querySelector("[aria-live=polite].sr-only")?.textContent?.trim();
+
+  it("hears how a live turn ended, not the history it opened with", () => {
+    const { rerender } = render(view(snapshotOf(sent, answer)));
+    expect(liveRegion()).toBe("");
+    rerender(view(snapshotOf(sent, answer, { type: "frames", frames: [f("complete", {})] })));
+    expect(liveRegion()).toBe("The answer is ready.");
+  });
+
+  it("hears that a question is waiting, and lands on it", () => {
+    const ask = {
+      type: "command",
+      command: "ask-user-question",
+      id: "q1",
+      questions: [
+        { id: "next", header: "Next", question: "Draft the plan?", multi_select: false, options: [{ label: "Yes" }] },
+      ],
+    };
+    const { rerender } = render(view(snapshotOf(sent)));
+    rerender(view(snapshotOf(sent, { type: "frames", frames: [f("final", ask), f("complete", {})] })));
+    expect(liveRegion()).toBe("The assistant has a question for you.");
+    expect(document.activeElement).toBe(screen.getByRole("form", { name: "Question from the assistant" }));
+  });
+});
+
 describe("the composer lock", () => {
   it("is locked exactly when there is a reason, and says which", async () => {
     const { composerState } = await import("../../components/composerState");

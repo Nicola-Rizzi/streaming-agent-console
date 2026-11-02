@@ -31,7 +31,8 @@ export const Composer = memo(function Composer({ disabled, isStreaming, lockedRe
     <div className="border-t border-neutral-200 bg-white p-3">
       <div className="flex items-end gap-2">
         <textarea
-          className="max-h-40 min-h-10 flex-1 resize-none rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-500"
+          aria-label={strings.composer.label}
+          className="max-h-40 min-h-10 flex-1 resize-none rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-500"
           disabled={disabled}
           onChange={(event) => setText(event.target.value)}
           onKeyDown={onKeyDown}

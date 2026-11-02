@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { test as base, expect, type Page } from "@playwright/test";
 
 import { strings } from "../src/strings";
@@ -64,7 +65,7 @@ test("a dropped connection is interrupted, and Resume finishes the turn", async 
   await openThread(page, "Berlin webinar attribution");
   await send(page, "Pull the report");
 
-  await expect(page.getByText(strings.turn.droppedTitle)).toBeVisible(LONG);
+  await expect(page.getByText(strings.turn.droppedTitle, { exact: true })).toBeVisible(LONG);
   await page.getByRole("button", { name: strings.turn.resume }).click();
   await expect(done(page)).toBeVisible(LONG);
 });
@@ -130,4 +131,29 @@ test("scroll: reading up is left alone, one click goes back to the bottom", asyn
     .getByRole("button", { name: new RegExp(`${strings.transcript.newContent}|${strings.transcript.backToLatest}`) })
     .click();
   await expect.poll(() => scroller.evaluate((el) => el.scrollHeight - el.scrollTop - el.clientHeight)).toBeLessThan(50);
+});
+
+/** WCAG 2.1 A and AA, as axe sees the page right now. */
+async function expectAccessible(page: Page) {
+  const { violations } = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);
+}
+
+test("accessibility: no WCAG 2.1 AA violations, details open, with a question waiting", async ({ page }) => {
+  await page.goto("/");
+  await expectAccessible(page);
+
+  // Charts, tables, files, failed actions and answered questions, with every section expanded.
+  await openThread(page, "Marketing data overview");
+  await page.locator("details").evaluateAll((all) => all.forEach((d) => ((d as HTMLDetailsElement).open = true)));
+  await expectAccessible(page);
+
+  await openThread(page, "Q3 launch review");
+  await send(page, "Yes, break it down");
+  const question = page.getByRole("form", { name: strings.questions.label });
+  await expect(question).toBeVisible(LONG);
+  await expect(question).toBeFocused();
+  await expectAccessible(page);
 });

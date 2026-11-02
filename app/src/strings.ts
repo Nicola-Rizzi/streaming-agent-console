@@ -11,11 +11,13 @@ export const strings = {
   },
 
   threads: {
+    label: "Threads",
     loadMore: "Load more…",
     loadFailed: (reason: string) => `Failed to load threads: ${reason}`,
   },
 
   composer: {
+    label: "Message",
     placeholder: "Ask the assistant…",
     noThread: "Select a thread first",
     send: "Send",
@@ -42,6 +44,7 @@ export const strings = {
     limitBody: "Start a new thread to continue.",
     newContent: "New content",
     backToLatest: "Back to latest",
+    label: "Conversation",
   },
 
   turn: {
@@ -54,6 +57,14 @@ export const strings = {
     resume: "Resume",
     working: "Working…",
     workingOn: (title: string) => `Working on: ${title}`,
+    /** Announced to screen readers when a live turn ends. */
+    announce: {
+      completed: "The answer is ready.",
+      stopped: "Stopped.",
+      failed: "This turn failed.",
+      interrupted: "The connection dropped before the answer finished.",
+      question: "The assistant has a question for you.",
+    },
   },
 
   actions: {
@@ -93,6 +104,7 @@ export const strings = {
     otherPlaceholder: "Other: answer in your own words",
     otherLabel: (question: string) => `Other answer to: ${question}`,
     footer: "You can leave any question blank. All answers are sent together.",
+    label: "Question from the assistant",
     send: "Send answers",
     /** Sent for a question left blank. */
     noAnswer: "no answer",

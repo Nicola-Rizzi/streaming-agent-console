@@ -35,7 +35,11 @@ export function App() {
       </aside>
       <main className="flex min-w-0 flex-1 flex-col">
         <div className="min-h-0 flex-1">
-          {threadId ? <Transcript onAnswer={send} onResume={resume} snapshot={snapshot} view={view} /> : <EmptyState />}
+          {threadId ? (
+            <Transcript key={threadId} onAnswer={send} onResume={resume} snapshot={snapshot} view={view} />
+          ) : (
+            <EmptyState />
+          )}
         </div>
         <Composer
           disabled={!threadId || composer.lockedReason !== undefined}
@@ -50,5 +54,5 @@ export function App() {
 }
 
 function EmptyState() {
-  return <div className="flex h-full items-center justify-center text-sm text-neutral-400">{strings.app.noThread}</div>;
+  return <div className="flex h-full items-center justify-center text-sm text-process">{strings.app.noThread}</div>;
 }

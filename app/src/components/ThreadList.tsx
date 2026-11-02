@@ -41,9 +41,10 @@ export const ThreadList = memo(function ThreadList({ onSelect, selectedId }: Thr
   }
 
   return (
-    <nav className="flex-1 overflow-y-auto py-2">
+    <nav aria-label={strings.threads.label} className="flex-1 overflow-y-auto py-2">
       {threads.map((thread) => (
         <button
+          aria-current={thread.id === selectedId ? "page" : undefined}
           className={`block w-full truncate px-4 py-2 text-left text-sm hover:bg-neutral-100 ${
             thread.id === selectedId ? "bg-neutral-100 font-medium" : ""
           }`}

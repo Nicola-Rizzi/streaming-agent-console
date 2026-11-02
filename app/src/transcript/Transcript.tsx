@@ -3,6 +3,7 @@ import { AnswerContext } from "./components/AnswerContext";
 import { LoadingSkeleton } from "./components/LoadingSkeleton";
 import { StateMessage } from "./components/StateMessage";
 import { Turn } from "./components/Turn";
+import { useAnnouncement } from "./components/useAnnouncement";
 import { useStickToBottom } from "./components/useStickToBottom";
 import type { Snapshot, TranscriptView } from "./types";
 
@@ -16,10 +17,14 @@ type TranscriptProps = {
 export function Transcript({ onAnswer, onResume, snapshot, view }: TranscriptProps) {
   const streaming = view.turns.at(-1)?.status === "streaming";
   const { scrollRef, contentRef, onScroll, away, toBottom } = useStickToBottom(streaming, view.turns.length);
+  const announcement = useAnnouncement(view);
 
   return (
     <AnswerContext.Provider value={onAnswer}>
-      <div className="relative h-full">
+      <section aria-label={strings.transcript.label} className="relative h-full">
+        <p aria-live="polite" className="sr-only">
+          {announcement}
+        </p>
         <div className="h-full overflow-y-auto" onScroll={onScroll} ref={scrollRef}>
           <div className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-8" ref={contentRef}>
             {snapshot.load === "loading" && <LoadingSkeleton />}
@@ -63,10 +68,11 @@ export function Transcript({ onAnswer, onResume, snapshot, view }: TranscriptPro
             onClick={toBottom}
             type="button"
           >
-            ↓ {streaming ? strings.transcript.newContent : strings.transcript.backToLatest}
+            <span aria-hidden="true">↓</span>{" "}
+            {streaming ? strings.transcript.newContent : strings.transcript.backToLatest}
           </button>
         )}
-      </div>
+      </section>
     </AnswerContext.Provider>
   );
 }

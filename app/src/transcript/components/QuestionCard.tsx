@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 
 import type { AskUserQuestion } from "../../api/types";
 import { strings } from "../../strings";
@@ -11,6 +11,12 @@ import { useAnswers } from "./useAnswers";
 export function QuestionCard({ ask, pending }: { ask: AskUserQuestion; pending: boolean }) {
   const send = useContext(AnswerContext);
   const { answers, answerOf, toggle, setOther } = useAnswers();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // The composer is locked while a question waits, so the question is where the keyboard goes next.
+  useEffect(() => {
+    if (pending) formRef.current?.focus({ preventScroll: true });
+  }, [pending]);
 
   if (!pending) {
     return (
@@ -24,11 +30,14 @@ export function QuestionCard({ ask, pending }: { ask: AskUserQuestion; pending: 
 
   return (
     <form
+      aria-label={strings.questions.label}
       className="flex flex-col gap-4 rounded-xl border border-neutral-900 bg-white p-4"
       onSubmit={(event) => {
         event.preventDefault();
         send(formatAnswers(ask.questions, answers));
       }}
+      ref={formRef}
+      tabIndex={-1}
     >
       {ask.questions.map((q) => (
         <QuestionField

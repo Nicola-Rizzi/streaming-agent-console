@@ -1,10 +1,27 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* Colour means state, never decoration: one token per outcome, one muted tone for the agent's process. */
+/* Colour means state, never decoration: one token per outcome, one muted tone for the agent's process.
+   Each one reaches 4.5:1 against the page background. */
 @theme {
-  --color-ok: oklch(0.55 0.13 155);
-  --color-warn: oklch(0.6 0.13 65);
+  --color-ok: oklch(0.52 0.13 155);
+  --color-warn: oklch(0.54 0.13 65);
   --color-bad: oklch(0.55 0.19 25);
   --color-process: oklch(0.52 0.02 260);
+}
+
+/* Keyboard focus is always visible. */
+:focus-visible {
+  outline: 2px solid var(--color-neutral-900);
+  outline-offset: 2px;
+}
+
+/* Read by screen readers, hidden on screen. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

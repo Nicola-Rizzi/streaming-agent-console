@@ -24,6 +24,7 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.1.0",
