@@ -13,12 +13,11 @@ There's no real assistant behind it: a small mock backend replays recorded conve
 ## What it does
 
 - **Streams answers as they're written**, without half-finished formatting flickering on screen.
-- **Shows the work without getting in the way.** Reasoning and tool calls are smaller and grey, grouped in one box, with the details a click away.
-- **Nests specialists** under the step that called them, however deep they go.
-- **Asks you questions** with a small form when it needs your input, and waits for the answer.
+- **Puts the answer first.** Reasoning and tool calls are smaller and grey, grouped in one box, with the details a click away. Specialists nest under the step that called them.
+- **Asks you questions** with a small form when it needs your input, and locks the message box until you answer.
 - **Is honest about failure.** Stop, errors, dropped connections and silences each look different, and an interrupted answer can be resumed.
 - **Copes with the unexpected.** Content it doesn't recognise shows a short note instead of breaking the page.
-- **Works with a keyboard and a screen reader**, and passes an automated accessibility check (WCAG 2.1 AA).
+- **Works with a keyboard and a screen reader.** Colour only ever means a state, and always comes with a symbol and a word.
 
 ## Try it
 
@@ -36,23 +35,15 @@ npm install
 npm run dev                               # http://localhost:5173
 ```
 
-Open the app, pick a conversation on the left and send a message.
+Pick a conversation on the left and send a message. The app lives in `app/`, the backend in `server/`, and the conversations it replays in `fixtures/`.
 
 | Command | What it does |
 |---|---|
 | `npm test` | 66 unit tests, in a few seconds |
-| `npm run test:e2e` | 10 end-to-end tests in a real browser, in about 90 seconds (downloads Chromium the first time) |
+| `npm run test:e2e` | 10 end-to-end tests in a real browser, including an accessibility check (about 90 seconds) |
 | `npm run demo:gif` | Records the GIF above again, from the real app |
 
-## What's where
-
-```
-app/        the React app and its tests
-server/     the mock backend
-fixtures/   the recorded conversations it replays
-docs/       the demo GIF
-.github/    the automatic checks
-```
+GitHub runs the type check, the formatting check and both test suites on every push.
 
 ## How it works
 
@@ -62,18 +53,12 @@ docs/       the demo GIF
                              └──────── send, Stop, Resume, answers ◀──────────┘
 ```
 
-- **`session.ts`** looks after the connection: one stream at a time, Stop, noticing when the stream goes silent, and resuming.
-- **`decode.ts`** turns what arrives into typed messages. It never crashes: anything broken or unknown becomes a short note, and keep-alive pings are ignored.
-- **`reducer.ts`** keeps every message once, in a flat list.
-- **`selectors.ts`** builds what you see (turns, groups, nested specialists) from that list, so the screen always matches the data.
+- **`session.ts`** looks after the connection: one stream at a time, Stop, noticing silence, and resuming.
+- **`decode.ts`** turns what arrives into typed messages, and never crashes on bad input.
+- **`reducer.ts`** keeps every message once, in a flat list. Messages arrive in pieces and then complete; the complete version always wins, so replaying a conversation never shows anything twice.
+- **`selectors.ts`** builds what you see from that list, so the screen always matches the data.
 
 None of this depends on React, so most of it is tested as plain functions.
-
-Three details that matter:
-
-- Messages usually arrive twice: in pieces while they're written, then complete. The complete version always wins, so replaying a conversation never shows anything twice.
-- Reopening a conversation rebuilds it out of sight and swaps it in when it's ready, so nothing flickers.
-- While text streams, only the part that changed is redrawn.
 
 ## How an answer can end
 
@@ -86,24 +71,10 @@ Three details that matter:
 | The connection drops | **Interrupted**, with a Resume button |
 | 15 seconds of total silence | **Reconnecting**, up to 4 times, then Interrupted |
 
-## Design choices
-
-- The answer comes first, in full contrast. The work behind it is there but quiet.
-- Colour only ever means a state (ok, warning, error), and each state also has a symbol and a word.
-- One line per answer says what the assistant is doing and for how long. The browser tab says "Working…" or "Question for you" if you've switched away.
-- The page follows new content while you're at the bottom. Scroll up to read and it stays put; a button takes you back down.
-- While a question is waiting, the message box is locked and says why.
-
-## Tests
-
-- **Unit tests** check each rule on its own: reading the stream, decoding, streaming text, specialists, every way an answer can end, the connection logic, the main components, and what a screen reader hears.
-- **End-to-end tests** run the real app in a real browser against the mock backend: a full answer with a question, Stop, a dropped connection, errors, a silence, formatting, unknown content, an old-format conversation and scrolling. They fail on any unexpected error in the browser console, and one checks accessibility with [axe](https://github.com/dequelabs/axe-core).
-- **GitHub** runs the type check, the formatting check and both kinds of test on every push.
-
-## Known limits and next steps
+## Known limits
 
 - A stopped answer only shows as stopped until you leave the conversation, because the history doesn't record stops.
+- Charts show a labelled placeholder instead of a real chart.
+- Resuming replays the whole conversation; the backend could send only what was missed.
 - Very long conversations would benefit from rendering only what's on screen.
-- Charts show a labelled placeholder. Real charts need a charting library, loaded only when needed.
-- Resuming replays the whole conversation. The backend could send only what was missed.
 - A failed answer can't be retried with one click yet.
