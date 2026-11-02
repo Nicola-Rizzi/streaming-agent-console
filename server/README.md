@@ -1,71 +1,59 @@
 # Mock assistant service
 
-Replays recorded conversation fixtures over SSE at a production-like cadence: token-level chunks, thinking pauses, slow actions, and keep-alive comments during gaps. A full turn can take a while because real agent work does too.
+A stand-in for a real AI assistant. It replays recorded conversations over a stream (SSE) at a realistic pace: text arrives a few words at a time, the assistant pauses to think, tools take a while, and keep-alive pings fill the silences. A full answer can take a minute, because real agent work does too.
 
-## Running
+## Running it
 
 ```sh
 npm install
 npm start                 # http://localhost:8787
 ```
 
-| Env var | Default | Effect |
+| Setting | Default | What it does |
 |---|---|---|
-| `PORT` | `8787` | Listen port |
-| `FIXTURES_DIR` | `../fixtures` | Directory of fixtures + `threads.json` |
-| `MOCK_SPEED` | `1` | Divides every delay. `MOCK_SPEED=20 npm start` streams ~20× faster — handy while developing. Check behaviour at `1`: several behaviours only show at real speed. Keep-alive comments scale with it, so a silence carries the same number of them whatever speed you run at. |
+| `PORT` | `8787` | The port to listen on |
+| `FIXTURES_DIR` | `../fixtures` | Where the recorded conversations and `threads.json` are |
+| `MOCK_SPEED` | `1` | Speeds everything up. `MOCK_SPEED=20 npm start` is about 20 times faster, which is handy while developing. Check things at normal speed too: some behaviour only shows up there. |
 
 ## Endpoints
 
-| Method | Path | Purpose |
-|---|---|---|
-| `GET` | `/api/threads?cursor=` | Thread list, paged |
-| `GET` | `/api/threads/:id/messages?cursor=` | Settled history, paged backward from newest |
-| `POST` | `/api/threads/:id/turns` | Send a message; streams the next recorded turn (SSE) |
-| `GET` | `/api/threads/:id/resume` | Replay history, bookmark, then any turn in flight (SSE) |
-| `POST` | `/api/threads/:id/cancel` | Cancel the turn in flight |
-| `POST` | `/api/reset` | Re-queue every recorded turn, so you can replay one without restarting. Turn numbering restarts too. |
-
-Every stream's first frame announces its protocol version. v1 threads (see `PROTOCOL_V1.md` at the repo root) are served in the legacy format on both the stream and the messages endpoint.
-
-For v1, message sequence numbers are stable within a thread across live delivery,
-replay and paged reads. New turns continue the sequence; `/api/reset` clears it
-alongside the thread data.
-
-## Fixtures
-
-`threads.json` indexes the fixture files. Several are deliberately hostile: stalls, dropped sockets, malformed frames.
-
-**The service is stateful.** Each `POST /turns` consumes one recorded turn from that thread's queue; when the queue runs out you get a placeholder reply. `POST /api/reset` re-queues everything.
-
-`welcome` is the smallest thread. The rest range from short edge cases to long multi-turn conversations.
-
-A fixture is raw SSE text with `:` comment directives for the replay engine:
-
-| Directive | Effect |
+| Request | What it does |
 |---|---|
-| `: turn` | Starts a queued turn — each `POST /turns` streams the next one, whatever text was sent |
-| `: pause <ms>` | Silence at this point (keep-alive comments continue) |
-| `: delay <ms>` | Manual-mode inter-frame delay |
-| `: stall <ms>` | Go quiet with the keep-alives switched off — the socket stays open and says nothing |
-| `: kill` | Drop the socket mid-stream (playback continues server-side) |
-| `: mode manual` | Replay frames verbatim instead of auto-chunking settled messages |
+| `GET /api/threads` | The list of conversations, a page at a time |
+| `GET /api/threads/:id/messages` | A conversation's finished messages, newest page first |
+| `POST /api/threads/:id/turns` | Sends a message and streams the next recorded answer |
+| `GET /api/threads/:id/resume` | Streams the whole conversation again, then any answer still in progress |
+| `POST /api/threads/:id/cancel` | Stops the answer in progress |
+| `POST /api/reset` | Puts every recorded answer back in the queue, so you can replay without restarting |
 
-In the default auto mode, fixtures store *settled* frames and the engine synthesizes the streaming experience (chunked deltas, running→settled tool calls, then the `final` supersede).
+Every stream starts by saying which protocol version it uses. Older conversations use version 1, described in [`PROTOCOL_V1.md`](../PROTOCOL_V1.md).
 
-Auto pacing follows the work being replayed. Text has a short first-token delay and pauses at punctuation. Actions use their recorded timestamps when available, within these usability limits:
+## The recorded conversations
 
-| Action kind | Delay range |
+`threads.json` lists them. `welcome` is the smallest; the others range from short edge cases to long conversations, and some are deliberately difficult: silences, dropped connections, broken messages.
+
+**The service remembers where you are.** Each message you send plays the next recorded answer for that conversation. When there are none left, you get a placeholder reply. `POST /api/reset` starts everything over.
+
+Each file is a raw stream with a few extra lines starting with `:` that tell the service what to do:
+
+| Line | What it does |
 |---|---|
-| `library` | 1.2–8 seconds |
-| `tool` or unknown | 1.8–12 seconds |
-| `agent` | 6–18 seconds |
+| `: turn` | Starts the next recorded answer. Each message you send plays one, whatever you wrote |
+| `: pause <ms>` | A silence, with keep-alive pings still coming |
+| `: stall <ms>` | A silence with no pings at all: the connection stays open and says nothing |
+| `: kill` | Drops the connection mid-answer |
+| `: delay <ms>` | The gap between messages, in manual mode |
+| `: mode manual` | Plays the file exactly as written instead of breaking messages into pieces |
 
-When timestamps are missing, seeded fallbacks keep the same relative order: library work is usually shortest, tools take longer, and sub-agents take longest. Overlapping actions share elapsed time instead of adding their full durations together. `MOCK_SPEED` divides all automatic and explicit delays. Manual fixtures retain their exact frame order and delays.
+Normally the files store each message once, finished, and the service breaks it into pieces to imitate streaming. Actions take roughly as long as they did when recorded, within these limits:
 
-## Simplifications
+| Kind of action | How long it takes |
+|---|---|
+| Library work | 1.2 to 8 seconds |
+| Tools | 1.8 to 12 seconds |
+| Specialists (sub-agents) | 6 to 18 seconds |
 
-Two places where this mock is simpler than a real backend:
+## Where it's simpler than a real backend
 
-- History is reconstructed from the frames a turn emitted, including partial streaming text a stopped turn never settled, and errors on the channel they arrived on. After a `: kill` that includes frames the client never received — which is what lets a resume finish the story. A real backend would persist as it generates rather than rebuilding after the fact.
-- A dropped client gets no help: `/resume` replays the whole thread from zero. There is no cursor or partial resume.
+- The history of an answer is rebuilt from what was streamed, including text from a stopped answer and messages sent after a dropped connection. That's what lets a resume finish the story. A real backend would save as it goes.
+- Resuming replays the whole conversation from the start. There's no way to pick up exactly where you left off.
