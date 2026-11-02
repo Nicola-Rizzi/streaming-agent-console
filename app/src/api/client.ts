@@ -1,6 +1,7 @@
 import type { StreamFrame, ThreadsPage } from "./types";
 
 const BASE = "/api";
+const thread = (id: string) => `${BASE}/threads/${encodeURIComponent(id)}`;
 
 export async function fetchThreads(cursor?: string): Promise<ThreadsPage> {
   const url = cursor ? `${BASE}/threads?cursor=${encodeURIComponent(cursor)}` : `${BASE}/threads`;
@@ -8,7 +9,7 @@ export async function fetchThreads(cursor?: string): Promise<ThreadsPage> {
 }
 
 export async function cancelTurn(threadId: string): Promise<void> {
-  const response = await fetch(`${BASE}/threads/${threadId}/cancel`, { method: "POST" });
+  const response = await fetch(`${thread(threadId)}/cancel`, { method: "POST" });
   if (!response.ok && response.status !== 404) {
     throw new Error(`cancel failed: ${response.status}`);
   }
@@ -16,7 +17,7 @@ export async function cancelTurn(threadId: string): Promise<void> {
 
 /** Send a message and stream the assistant's turn. */
 export function streamTurn(threadId: string, text: string, signal: AbortSignal): AsyncIterable<StreamFrame> {
-  return streamRequest(`${BASE}/threads/${threadId}/turns`, {
+  return streamRequest(`${thread(threadId)}/turns`, {
     body: JSON.stringify({ text }),
     headers: { "content-type": "application/json" },
     method: "POST",
@@ -26,7 +27,7 @@ export function streamTurn(threadId: string, text: string, signal: AbortSignal):
 
 /** Reopen a thread: replays history, then a bookmark, then any live turn in flight. */
 export function resumeThread(threadId: string, signal: AbortSignal): AsyncIterable<StreamFrame> {
-  return streamRequest(`${BASE}/threads/${threadId}/resume`, { method: "GET", signal });
+  return streamRequest(`${thread(threadId)}/resume`, { method: "GET", signal });
 }
 
 async function getJson<T>(url: string): Promise<T> {
@@ -40,6 +41,9 @@ async function getJson<T>(url: string): Promise<T> {
 /**
  * Minimal SSE transport over fetch. Yields every dispatched frame verbatim —
  * decoding (and deciding what to do with what arrives) is up to the caller.
+ *
+ * As the SSE standard requires, an event the stream ends in the middle of (no
+ * closing blank line) is dropped: a cut-off frame is never half-delivered.
  */
 async function* streamRequest(url: string, init: RequestInit): AsyncGenerator<StreamFrame> {
   const response = await fetch(url, init);
