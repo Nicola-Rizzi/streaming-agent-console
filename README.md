@@ -1,5 +1,7 @@
 # Streaming Agent Console
 
+[![CI](https://github.com/Nicola-Rizzi/streaming-agent-console/actions/workflows/ci.yml/badge.svg)](https://github.com/Nicola-Rizzi/streaming-agent-console/actions/workflows/ci.yml)
+
 A chat interface for an AI assistant that works in the open. While it answers, you see what it's thinking, which tools it calls, which specialists it hands work to, and the charts and files it produces, all as they stream in.
 
 It's built to keep working when things go wrong: a turn that's stopped, fails, goes quiet or loses its connection always ends in a clear state.

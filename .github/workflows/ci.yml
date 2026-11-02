@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            app/package-lock.json
+            server/package-lock.json
+
+      - name: Install
+        run: |
+          npm --prefix app ci
+          npm --prefix server ci
+
+      - name: Typecheck
+        run: |
+          npm --prefix app run typecheck
+          npm --prefix server run typecheck
+
+      - name: Formatting
+        run: npm --prefix app run format:check
+
+      - name: Unit tests
+        run: |
+          npm --prefix app test
+          npm --prefix server test
+
+      - name: Browser tests
+        working-directory: app
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test
+
+      - name: Keep the failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: app/test-results/
+          retention-days: 7
