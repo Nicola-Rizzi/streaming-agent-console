@@ -2,9 +2,9 @@ import type { FixtureItem, Frame } from "./fixtures";
 import { BELONGS_TO_SCOPE, createV1Sequence } from "./fixtures";
 import { actionDelayMs, initialTextDelayMs, textChunkDelayMs, type TextMessageType } from "./pacing";
 
-export type SinkEvent = { kind: "frame"; frame: Frame } | { kind: "comment"; text: string } | { kind: "kill" };
+type SinkEvent = { kind: "frame"; frame: Frame } | { kind: "comment"; text: string } | { kind: "kill" };
 
-export type Subscriber = (event: SinkEvent) => void;
+type Subscriber = (event: SinkEvent) => void;
 
 const speed = Math.max(Number(process.env.MOCK_SPEED) || 1, 0.01);
 const keepAliveIntervalMs = 5000;
@@ -112,7 +112,7 @@ export async function playTurn(
   }
 }
 
-export function terminalFrame(protocol: 1 | 2): Frame {
+function terminalFrame(protocol: 1 | 2): Frame {
   return protocol === 1 ? { data: "{}", event: "done" } : { data: "{}", event: "complete" };
 }
 

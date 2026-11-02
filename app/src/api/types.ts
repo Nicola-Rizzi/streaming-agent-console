@@ -102,5 +102,3 @@ export type ProblemDetails = { title: string; status?: number; detail?: string }
 
 export type ThreadDto = { id: string; title: string; protocol: 1 | 2; updated_at: string };
 export type ThreadsPage = { threads: ThreadDto[]; next_cursor: string | null };
-/** Messages are settled MessageEvents, oldest → newest within the page. Cursor pages backward in time. */
-export type MessagesPage = { messages: MessageEvent[]; next_cursor: string | null };

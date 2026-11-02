@@ -1,16 +1,9 @@
-import type { MessagesPage, StreamFrame, ThreadsPage } from "./types";
+import type { StreamFrame, ThreadsPage } from "./types";
 
 const BASE = "/api";
 
 export async function fetchThreads(cursor?: string): Promise<ThreadsPage> {
   const url = cursor ? `${BASE}/threads?cursor=${encodeURIComponent(cursor)}` : `${BASE}/threads`;
-  return getJson(url);
-}
-
-export async function fetchMessages(threadId: string, cursor?: string): Promise<MessagesPage> {
-  const url = cursor
-    ? `${BASE}/threads/${threadId}/messages?cursor=${encodeURIComponent(cursor)}`
-    : `${BASE}/threads/${threadId}/messages`;
   return getJson(url);
 }
 
