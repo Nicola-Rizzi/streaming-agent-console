@@ -4,6 +4,8 @@ A chat interface for an AI assistant that works in the open. While it answers, y
 
 It's built to keep working when things go wrong: a turn that's stopped, fails, goes quiet or loses its connection always ends in a clear state.
 
+![A turn streaming: grouped actions, a nested specialist, a question answered, then Done](docs/demo.gif)
+
 The app runs against a mock backend (`server/`) that replays recorded conversations (`fixtures/`), so no real assistant is needed. All companies, people and numbers in those conversations are invented.
 
 ## What it does
@@ -37,6 +39,7 @@ Other commands:
 |---|---|
 | `npm test` | Unit tests (58, about a second) |
 | `npm run test:e2e` | Browser tests (9, about 90 seconds; downloads Chromium the first time) |
+| `npm run demo:gif` | Re-records `docs/demo.gif` from the real app |
 
 ## How it works
 

@@ -10,6 +10,7 @@
     "test": "npm --prefix app test",
     "typecheck": "npm --prefix app run typecheck",
     "format": "npm --prefix app run format",
-    "test:e2e": "(test -d server/node_modules || npm --prefix server ci) && npm --prefix app run test:e2e"
+    "test:e2e": "(test -d server/node_modules || npm --prefix server ci) && npm --prefix app run test:e2e",
+    "demo:gif": "(test -d server/node_modules || npm --prefix server ci) && npm --prefix app run demo:gif"
   }
 }
