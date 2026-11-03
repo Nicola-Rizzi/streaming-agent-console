@@ -72,8 +72,30 @@ None of this depends on React, so most of it is tested as plain functions.
 
 ## Known limits
 
-- A stopped answer only shows as stopped until you leave the conversation, because the history doesn't record stops.
-- Charts show a labelled placeholder instead of a real chart.
-- Resuming replays the whole conversation; the backend could send only what was missed.
-- Very long conversations would benefit from rendering only what's on screen.
-- A failed answer can't be retried with one click yet.
+What doesn't work, or works only partly, and why.
+
+**Because the backend is a mock**
+
+- **What you type isn't read.** Each message plays the next recorded answer for that conversation, whatever you wrote. There's no real assistant to answer it.
+- **Answers run out.** Once a conversation's recorded answers are used up, you get a placeholder reply. Restart the backend, or call `POST /api/reset`, to play them again.
+- **You can't start a new conversation.** The backend serves a fixed list, so when a conversation is full the app can only say so.
+- **Resuming replays the whole conversation.** The backend has no way to send only what was missed, so after a dropped connection everything is streamed again. The app hides this, but it costs time on long conversations.
+
+**In the app**
+
+- **A stopped answer shows as stopped only until you leave the conversation.** The history doesn't record stops, so after reopening it reads as done or interrupted.
+- **Charts are placeholders.** They show their title and series, not the chart itself. A charting library like Plotly adds about 3 MB to the app, too much for a secondary part of the answer.
+- **Older-format conversations aren't displayed.** They open with a notice and their lifecycle is handled, but their content isn't rendered.
+- **Answers to the assistant's questions are sent as plain text**, one line per question, because the backend only accepts text.
+- **A failed answer can't be retried.** You have to send the message again yourself.
+
+## Improvements
+
+In order of value:
+
+1. **Retry a failed answer** with one click, resending the same message.
+2. **Real charts**, with the library loaded only when a chart appears, so the app stays light.
+3. **A resume cursor** on the backend (`Last-Event-ID`), so a dropped connection resumes from where it stopped instead of from the start.
+4. **Remember stops** in the history, so a stopped answer still says so after reopening.
+5. **Render only what's on screen** for very long conversations. Around 350 messages works fine today, so this only matters beyond that.
+6. **A live demo**, running the backend's replay in the browser, so the app can be tried without installing anything.
