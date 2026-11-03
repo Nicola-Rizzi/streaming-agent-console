@@ -57,18 +57,46 @@ GitHub runs the type check, the formatting check and both test suites on every p
 
 ## How it works
 
-```
- mock backend ──stream──▶ session ──▶ decode ──▶ reducer ──▶ selectors ──▶ screen
-                             ▲                                                │
-                             └──────── send, Stop, Resume, answers ◀──────────┘
+### The system
+
+```mermaid
+flowchart TB
+  subgraph browser["Browser"]
+    direction LR
+    ui["React app<br/>thread list, transcript, composer"]
+    session["Session<br/>one stream at a time, Stop,<br/>silence detection, resume"]
+    ui <-->|"send, Stop,<br/>Resume, answers"| session
+  end
+  subgraph vite["Vite dev server"]
+    proxy["/api proxy<br/>passes dropped connections through"]
+  end
+  subgraph mock["Mock backend (Node)"]
+    direction LR
+    routes["HTTP routes<br/>threads, turns, resume,<br/>cancel, reset"]
+    engine["Replay engine<br/>text in pieces, pacing,<br/>keep-alives, silences, drops"]
+    fixtures[("fixtures/<br/>recorded conversations")]
+    routes --> engine --> fixtures
+  end
+  ui -->|"thread list (JSON)"| proxy
+  session <-->|"answers as a stream (SSE), cancel"| proxy
+  proxy <--> routes
 ```
 
-- **`session.ts`** looks after the connection: one stream at a time, Stop, noticing silence, and resuming.
-- **`decode.ts`** turns what arrives into typed messages.
-- **`reducer.ts`** keeps every message once, in a flat list. Messages arrive in pieces and then complete; the complete version always wins, so replaying a conversation never shows anything twice.
-- **`selectors.ts`** builds what you see from that list, so the screen always matches the data.
+The app talks to the backend over plain HTTP. Answers come back as a stream that stays open while the assistant works; everything else is a normal request. In development, Vite serves the app and forwards `/api` to the backend.
 
-None of this depends on React, so most of it is tested as plain functions.
+### Inside the app
+
+```mermaid
+flowchart LR
+  backend["Mock backend"] -- "stream (SSE)" --> session["session.ts<br/>connection, Stop,<br/>silence, resume"]
+  session --> decode["decode.ts<br/>typed messages"]
+  decode --> reducer["reducer.ts<br/>every message once,<br/>in a flat list"]
+  reducer --> selectors["selectors.ts<br/>turns, groups,<br/>nested specialists"]
+  selectors --> ui["React components"]
+  ui -- "send, Stop, Resume, answers" --> session
+```
+
+Messages arrive in pieces and then complete. The complete version always wins, so replaying a conversation never shows anything twice. What you see is rebuilt from the flat list on every change, so the screen always matches the data. None of this depends on React, so most of it is tested as plain functions.
 
 ## Known limits
 
